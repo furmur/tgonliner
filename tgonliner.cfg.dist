@@ -1,0 +1,8 @@
+[api]
+; visit https://my.telegram.org/apps for your own values
+id = 111111
+hash = d8e8fca2dc0f896fd7cb4cb0031ba249
+
+[bot]
+# use /id in ctl chat to get value for this field in bot log
+# ctl_chat_id = 111111111
