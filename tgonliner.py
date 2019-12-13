@@ -46,42 +46,18 @@ class Onliner:
 
     def reset_keep_online_timer(self):
         self.cancel_keep_online_timer()
-
-        def keep_online_timer_callback(f):
-            try:
-                r = f.result()
-            except:
-                pass
-
+        self.keep_online_timer_task = asyncio.create_task(self.timer_loop())
         #~ log('⏳set keep online timer')
 
-        self.keep_online_timer_task = asyncio.ensure_future(self.keep_online_timer_handler())
-        self.keep_online_timer_task.add_done_callback(keep_online_timer_callback)
-
-    async def keep_online_timer_handler(self):
-        try:
-            #~ log('⏳keep online timer delay: %s' % (KEEP_ONLINE_INTERVAL_SECONDS))
-            if os.name == 'nt': #TODO: check what is wrong with asyncio.sleep on windows
-                time.sleep(delay)
-            else:
-                await asyncio.sleep(KEEP_ONLINE_INTERVAL_SECONDS)
-            await self.on_keep_online_timer()
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            log('⏳%s keep_online_timer_handler exception %s\n%s %s:%s' % (e,exc_type,fname,exc_tb.tb_lineno))
-
-
-    async def on_keep_online_timer(self):
-        #~ log('⏳keep online timer is fired')
-        if not self.enabled:
-            #~ log('⏳ignore timer because of disabled events processing')
-            pass
-        else:
-            #TODO: send online status update
-            await self.update_status()
-
-        self.reset_keep_online_timer()
+    async def timer_loop(self):
+        while True:
+            try:
+                await self.update_status()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                log('⏳%s timer_loop exception %s\n%s %s:%s' % (e,exc_type,fname,exc_tb.tb_lineno))
+            await asyncio.sleep(self.watchdog_timeout)
 
     async def update_status(self):
         await self.client(functions.account.UpdateStatusRequest(offline=False))
