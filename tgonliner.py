@@ -18,8 +18,8 @@ from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 
 SIGHUP_AVAILABLE = hasattr(signal, 'SIGHUP')
 
-KEEP_ONLINE_INTERVAL_SECONDS = 30
-#~ KEEP_ONLINE_INTERVAL_SECONDS = 5
+#~ KEEP_ONLINE_INTERVAL_SECONDS = 30
+KEEP_ONLINE_INTERVAL_SECONDS = 5
 
 def log(msg):
     print(time.strftime("%Y-%m-%d %H:%M:%S") + ' ' + msg)
@@ -46,7 +46,7 @@ class Onliner:
 
     def reset_keep_online_timer(self):
         self.cancel_keep_online_timer()
-        self.keep_online_timer_task = asyncio.create_task(self.timer_loop())
+        self.keep_online_timer_task = asyncio.get_event_loop().create_task(self.timer_loop())
         #~ log('⏳set keep online timer')
 
     async def timer_loop(self):
@@ -57,7 +57,7 @@ class Onliner:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 log('⏳%s timer_loop exception %s\n%s %s:%s' % (e,exc_type,fname,exc_tb.tb_lineno))
-            await asyncio.sleep(self.watchdog_timeout)
+            await asyncio.sleep(KEEP_ONLINE_INTERVAL_SECONDS)
 
     async def update_status(self):
         await self.client(functions.account.UpdateStatusRequest(offline=False))
