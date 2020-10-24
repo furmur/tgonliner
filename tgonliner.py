@@ -19,7 +19,7 @@ from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 SIGHUP_AVAILABLE = hasattr(signal, 'SIGHUP')
 
 #~ KEEP_ONLINE_INTERVAL_SECONDS = 30
-KEEP_ONLINE_INTERVAL_SECONDS = 5
+KEEP_ONLINE_INTERVAL_SECONDS = 30
 
 def log(msg):
     print(time.strftime("%Y-%m-%d %H:%M:%S") + ' ' + msg)
@@ -56,7 +56,7 @@ class Onliner:
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                log('⏳%s timer_loop exception %s\n%s %s:%s' % (e,exc_type,fname,exc_tb.tb_lineno))
+                log('⏳timer_loop exception %s\n%s %s:%s' % (e,exc_type,fname,exc_tb.tb_lineno))
             await asyncio.sleep(KEEP_ONLINE_INTERVAL_SECONDS)
 
     async def update_status(self):
